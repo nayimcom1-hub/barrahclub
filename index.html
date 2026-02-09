@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>Barrah Mullah Kandha Sporting Club</title>
+<style>
+:root{
+  --primary:#f26522;
+  --secondary:#2f7d32;
+  --dark:#1f2937;
+  --light:#f4f6f8;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",sans-serif;background:var(--light);color:var(--dark);}
+header{background:linear-gradient(135deg,var(--primary),#ff9b63);color:#fff;padding:20px;text-align:center;font-size:22px;font-weight:600;}
+.container{max-width:480px;margin:auto;padding:16px;}
+.buttons{display:flex;gap:12px;margin:18px 0;}
+.buttons button{flex:1;padding:14px;border:none;border-radius:25px;font-size:15px;font-weight:600;cursor:pointer;color:#fff;}
+#admissionBtn{background:var(--secondary)}
+#playersBtn{background:var(--primary)}
+.section{display:none;background:#fff;border-radius:14px;padding:16px;box-shadow:0 10px 25px rgba(0,0,0,.08);}
+.section.active{display:block}
+.section h3{margin-top:0;font-size:18px;border-bottom:2px solid var(--light);padding-bottom:8px;}
+input{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #d1d5db;font-size:14px;}
+.submit-btn{background:var(--primary);margin-top:10px;width:100%;padding:14px;border:none;border-radius:25px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;}
+.player-card{display:flex;gap:12px;padding:12px;margin-top:12px;border-radius:12px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.08);}
+.player-card img{width:50px;height:65px;object-fit:cover;border-radius:4px;border:1px solid #ccc;}
+.player-info{flex:1;font-size:14px;}
+.player-info b{font-size:15px}
+.card-actions button{width:100%;margin-top:6px;padding:8px;border:none;border-radius:18px;font-size:13px;cursor:pointer;color:#fff;}
+.info-btn{background:var(--secondary)}
+#detailBox img{width:80px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #ccc;display:block;margin-bottom:10px;}
+footer{margin-top:25px;padding:12px;background:var(--primary);color:#fff;text-align:center;font-size:14px;}
+</style>
+</head>
+<body>
+
+<header>Barrah Mullah Kandha Sporting Club</header>
+
+<div class="container">
+<div class="buttons">
+  <button id="admissionBtn">Admission</button>
+  <button id="playersBtn">Players List</button>
+</div>
+
+<!-- Admission Form -->
+<div id="admission" class="section active">
+<h3>Admission Form</h3>
+<input id="name" placeholder="Player Name">
+<input id="father" placeholder="Father's Name">
+<input id="address" placeholder="Address">
+<input id="dob" type="date">
+<input id="jersey" placeholder="Jersey Number">
+<input id="position" placeholder="Position">
+<input id="photo" type="file" accept="image/*">
+<button id="submitBtn" class="submit-btn">Submit Admission</button>
+</div>
+
+<!-- Players List -->
+<div id="players" class="section">
+<h3>Players List</h3>
+<input id="search" placeholder="Search by name / age / position" onkeyup="searchPlayer()">
+<div id="playerList"></div>
+</div>
+
+<!-- Details -->
+<div id="details" class="section">
+<h3>Player Information</h3>
+<div id="detailBox"></div>
+<button class="submit-btn" onclick="showPlayers()">Back to List</button>
+</div>
+</div>
+
+<footer>Official Club Management Panel</footer>
+
+<script>
+// ===== CONFIG =====
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxhxqfuR4C6-i0Mau5Wdngad-2WBYLYGzRqVjTtlcDN_A-dqqdItCjX0TA-V7BmVA/exec"; // এখানে তোমার Apps Script Web App URL বসাও
+
+// ===== Sections =====
+const admissionBtn = document.getElementById("admissionBtn");
+const playersBtn = document.getElementById("playersBtn");
+admissionBtn.onclick=()=>showSection("admission");
+playersBtn.onclick=showPlayers;
+
+function showSection(id){
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+}
+
+// ===== Submit Admission =====
+document.getElementById("submitBtn").addEventListener("click",submitPlayer);
+
+function submitPlayer(){
+ const data = {
+  name: name.value,
+  father: father.value,
+  address: address.value,
+  dob: dob.value,
+  age: dob.value ? new Date().getFullYear()-new Date(dob.value).getFullYear() : "",
+  jersey: jersey.value,
+  position: position.value,
+  photo: ""
+ };
+
+ fetch(WEBAPP_URL, {
+   method:"POST",
+   body: JSON.stringify(data)
+ })
+ .then(res=>res.json())
+ .then(r=>{
+   if(r.status==="success"){
+     alert("Admission request submitted! Admin approval needed.");
+     clearForm();
+   }
+ });
+}
+
+function clearForm(){
+ name.value=""; father.value=""; address.value=""; dob.value="";
+ jersey.value=""; position.value=""; photo.value="";
+}
+
+// ===== Load Players =====
+function showPlayers(){ showSection("players"); loadPlayers(); }
+
+function loadPlayers(){
+ fetch(WEBAPP_URL)
+  .then(res=>res.json())
+  .then(players=>{ renderPlayers(players); });
+}
+
+function renderPlayers(list){
+ const playerList=document.getElementById("playerList");
+ playerList.innerHTML="";
+ list.forEach((p,i)=>{
+   playerList.innerHTML+=`
+   <div class="player-card">
+     ${p.photo ? `<img src="${p.photo}">` : ``}
+     <div class="player-info">
+       <b>${p.name}</b><br>
+       Age: ${p.age}<br>
+       Jersey: ${p.jersey}<br>
+       Position: ${p.position}
+       <div class="card-actions">
+         <button class="info-btn" onclick="showDetails(${i})">Information</button>
+       </div>
+     </div>
+   </div>`;
+ });
+}
+
+function showDetails(i){
+ fetch(WEBAPP_URL)
+  .then(res=>res.json())
+  .then(players=>{
+    const p = players[i];
+    const detailBox = document.getElementById("detailBox");
+    detailBox.innerHTML=`
+      ${p.photo ? `<img src="${p.photo}">` : ``}
+      <b>Name:</b> ${p.name}<br>
+      <b>Father:</b> ${p.father}<br>
+      <b>Address:</b> ${p.address}<br>
+      <b>Date of Birth:</b> ${p.dob}<br>
+      <b>Age:</b> ${p.age}<br>
+      <b>Jersey:</b> ${p.jersey}<br>
+      <b>Position:</b> ${p.position}<br>
+      <b>Admission Date:</b> ${p.admissionDate}
+    `;
+    showSection("details");
+  });
+}
+
+function searchPlayer(){
+ const v=document.getElementById("search").value.toLowerCase();
+ fetch(WEBAPP_URL)
+  .then(res=>res.json())
+  .then(players=>{
+    renderPlayers(players.filter(p=>p.name.toLowerCase().includes(v)||
+                                      p.position.toLowerCase().includes(v)||
+                                      p.age.toString().includes(v)));
+  });
+}
+</script>
+
+</body>
+</html>
