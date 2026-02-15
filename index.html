@@ -1,40 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>BMK Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barrah Mulla Kandha Sporting Club</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
-        .box { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 12px; }
-        .icon-btn { border: none; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; color: white; margin: 2px; }
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); }
-        .modal-content { background: white; width: 400px; margin: 50px auto; padding: 20px; border-radius: 10px; }
-        input { width: 100%; padding: 8px; margin: 5px 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Hind Siliguri', sans-serif; }
+        body { background-color: #f4f7f6; }
+        nav { background: #064e3b; color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 18px; font-weight: bold; color: #fbbf24; cursor: pointer; }
+        nav ul { display: flex; list-style: none; gap: 15px; }
+        nav ul li a { color: white; text-decoration: none; cursor: pointer; font-size: 13px; }
+        .page-section { display: none; padding: 50px 8%; animation: fadeIn 0.5s; }
+        .active { display: block; }
+        .hero { height: 70vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80') center/cover; color: white; border-radius: 0 0 30px 30px; }
+        .mgmt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 25px; border-radius: 15px; text-align: center; border-top: 5px solid #064e3b; color: #333; }
+        .stars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+        .star-card { background: white; padding: 10px; border-radius: 15px; text-align: center; }
+        .star-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+        .form-box { background: white; padding: 25px; border-radius: 15px; max-width: 600px; margin: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn-main { background: #064e3b; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #064e3b; color: white; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="dashboard" class="box">
-        <h2>অনলাইন এডমিন প্যানেল (BMK SC)</h2><br>
-        <h4>নতুন আবেদন</h4>
-        <table width="100%" border="1" cellpadding="10" style="border-collapse:collapse">
-            <tbody id="reqBody"></tbody>
-        </table>
-        <br><h4>খেলোয়াড় তালিকা</h4>
-        <table width="100%" border="1" cellpadding="10" style="border-collapse:collapse">
-            <tbody id="pBody"></tbody>
+    <nav>
+        <div class="logo" onclick="showPage('home')">BMK Sporting Club</div>
+        <ul>
+            <li><a onclick="showPage('home')">হোম</a></li>
+            <li><a onclick="showPage('mgmt')">ম্যানেজমেন্ট</a></li>
+            <li><a onclick="showPage('stars')">সেরা প্লেয়ার</a></li>
+            <li><a onclick="showPage('list')">তালিকা</a></li>
+            <li><a onclick="showPage('join')">ভর্তি</a></li>
+        </ul>
+    </nav>
+
+    <div id="home" class="page-section active">
+        <div class="hero">
+            <h1>Barrah Mulla Kandha Sporting Club</h1>
+            <p>আপনার ফুটবল প্রতিভা বিকাশের সঠিক ঠিকানা</p>
+            <button class="btn-main" style="width:200px" onclick="showPage('join')">মেম্বার হোন</button>
+        </div>
+    </div>
+
+    <div id="mgmt" class="page-section">
+        <h2 style="text-align: center; margin-bottom: 30px;">ক্লাব ম্যানেজমেন্ট</h2>
+        <div class="mgmt-grid">
+            <div class="card"><h3>আমাদের লক্ষ্য</h3><p>স্থানীয় প্রতিভাকে বিশ্বমঞ্চে নিয়ে যাওয়া।</p></div>
+            <div class="card"><h3>পরিচালনা</h3><p>দক্ষ ও অভিজ্ঞ ম্যানেজমেন্ট প্যানেল দ্বারা পরিচালিত।</p></div>
+        </div>
+    </div>
+
+    <div id="stars" class="page-section">
+        <h2 style="text-align: center; margin-bottom: 30px;">সেরা খেলোয়াড়গণ</h2>
+        <div id="starsGallery" class="stars-grid"></div>
+    </div>
+
+    <div id="list" class="page-section">
+        <h2 style="text-align: center; margin-bottom: 30px;">অফিসিয়াল স্কোয়াড</h2>
+        <table>
+            <thead><tr><th>ছবি</th><th>জার্সি</th><th>নাম</th></tr></thead>
+            <tbody id="publicBody"></tbody>
         </table>
     </div>
 
-    <div id="modal" class="modal">
-        <div class="modal-content" id="mContent"></div>
+    <div id="join" class="page-section">
+        <div class="form-box">
+            <h2 style="text-align: center; margin-bottom: 20px;">ভর্তি ফরম</h2>
+            <form id="applyForm">
+                <div class="form-grid">
+                    <input type="text" id="a_name" placeholder="নাম" required>
+                    <input type="text" id="a_father" placeholder="পিতার নাম">
+                    <input type="tel" id="a_phone" placeholder="ফোন">
+                    <input type="number" id="a_jersey" placeholder="জার্সি নং">
+                    <input type="text" id="a_address" placeholder="ঠিকানা">
+                    <select id="a_pos"><option>GK</option><option>DF</option><option>MF</option><option>FW</option></select>
+                </div>
+                <br><input type="file" id="a_pic" accept="image/*" required>
+                <button type="submit" class="btn-main">আবেদন জমা দিন</button>
+            </form>
+        </div>
     </div>
 
     <script>
-        // Firebase Config (index.html এর মতই একই কোড দিন)
+        // FIREBASE CONFIG - এখানে আপনার কোড বসান
         const firebaseConfig = {
             apiKey: "AIzaSyCkYMVn0Jh4Oo8Mgm8WyVAOVe65lSLGeks",
   authDomain: "barrahms-app.firebaseapp.com",
@@ -48,74 +107,47 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ডাটা লোড
-        db.ref('requests').on('value', snap => {
-            const data = snap.val();
-            let html = "";
-            for(let key in data) {
-                html += `<tr><td>${data[key].name}</td><td>
-                    <button class="icon-btn" style="background:blue" onclick="view('${key}', 'req')"><i class="fas fa-info"></i></button>
-                    <button class="icon-btn" style="background:green" onclick="approve('${key}')"><i class="fas fa-check"></i></button>
-                    <button class="icon-btn" style="background:red" onclick="db.ref('requests/${key}').remove()"><i class="fas fa-trash"></i></button>
-                </td></tr>`;
-            }
-            document.getElementById('reqBody').innerHTML = html;
-        });
+        function showPage(id) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
+        }
 
+        // রিয়েল টাইম ডাটা লোড
         db.ref('players').on('value', snap => {
             const data = snap.val();
-            let html = "";
-            for(let key in data) {
-                html += `<tr><td><img src="${data[key].pic}" width="30"></td><td>${data[key].name}</td><td>
-                    <button class="icon-btn" style="background:${data[key].isStar?'orange':'gray'}" onclick="db.ref('players/${key}').update({isStar:!${data[key].isStar}})">★</button>
-                    <button class="icon-btn" style="background:blue" onclick="edit('${key}')"><i class="fas fa-pen"></i></button>
-                    <button class="icon-btn" style="background:red" onclick="db.ref('players/${key}').remove()"><i class="fas fa-trash"></i></button>
-                </td></tr>`;
-            }
-            document.getElementById('pBody').innerHTML = html;
+            let players = data ? Object.values(data) : [];
+            
+            document.getElementById('starsGallery').innerHTML = players.filter(p => p.isStar).map(p => `
+                <div class="star-card"><img src="${p.pic}"><h3>${p.name}</h3></div>
+            `).join('');
+
+            document.getElementById('publicBody').innerHTML = players.map(p => `
+                <tr><td><img src="${p.pic}" width="40" height="40" style="border-radius:50%"></td>
+                <td>#${p.jersey}</td><td>${p.name}</td></tr>
+            `).join('');
         });
 
-        function approve(key) {
-            db.ref('requests/' + key).once('value', snap => {
-                db.ref('players').push({...snap.val(), isStar: false});
-                db.ref('requests/' + key).remove();
-            });
-        }
-
-        function view(key, type) {
-            db.ref(type === 'req' ? 'requests/' + key : 'players/' + key).once('value', snap => {
-                const d = snap.val();
-                document.getElementById('mContent').innerHTML = `
-                    <center><img src="${d.pic}" width="100"></center>
-                    <p>নাম: ${d.name}</p><p>পিতা: ${d.father}</p><p>ফোন: ${d.phone}</p><p>ঠিকানা: ${d.address}</p>
-                    <button onclick="document.getElementById('modal').style.display='none'">বন্ধ করুন</button>
-                `;
-                document.getElementById('modal').style.display = 'block';
-            });
-        }
-
-        function edit(key) {
-            db.ref('players/' + key).once('value', snap => {
-                const d = snap.val();
-                document.getElementById('mContent').innerHTML = `
-                    <h3>এডিট তথ্য</h3>
-                    <input id="en" value="${d.name}">
-                    <input id="ej" value="${d.jersey}">
-                    <input id="ep" value="${d.phone}">
-                    <button onclick="saveEdit('${key}')">সেভ</button>
-                `;
-                document.getElementById('modal').style.display = 'block';
-            });
-        }
-
-        function saveEdit(key) {
-            db.ref('players/' + key).update({
-                name: document.getElementById('en').value,
-                jersey: document.getElementById('ej').value,
-                phone: document.getElementById('ep').value
-            });
-            document.getElementById('modal').style.display = 'none';
-        }
+        document.getElementById('applyForm').onsubmit = function(e) {
+            e.preventDefault();
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const req = {
+                    name: document.getElementById('a_name').value,
+                    father: document.getElementById('a_father').value,
+                    phone: document.getElementById('a_phone').value,
+                    jersey: document.getElementById('a_jersey').value,
+                    address: document.getElementById('a_address').value,
+                    pos: document.getElementById('a_pos').value,
+                    pic: ev.target.result
+                };
+                db.ref('requests').push(req).then(() => {
+                    alert('সফলভাবে জমা হয়েছে!');
+                    this.reset();
+                });
+            };
+            reader.readAsDataURL(document.getElementById('a_pic').files[0]);
+        };
     </script>
 </body>
 </html>
