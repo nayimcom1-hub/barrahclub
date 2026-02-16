@@ -1,121 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>BMK Admin Panel</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
-        .box { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 12px; }
-        .icon-btn { border: none; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; color: white; margin: 2px; }
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); }
-        .modal-content { background: white; width: 400px; margin: 50px auto; padding: 20px; border-radius: 10px; }
-        input { width: 100%; padding: 8px; margin: 5px 0; }
-    </style>
+<meta charset="UTF-8">
+<title>BMK Admin Panel</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+body{
+    font-family:sans-serif;
+    background:#f0f2f5;
+    padding:20px;
+}
+.box{
+    max-width:1000px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+h2{ text-align:center; }
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+th{ background:#1f2937; color:white; }
+
+.icon-btn{
+    border:none;
+    width:35px;
+    height:35px;
+    border-radius:6px;
+    cursor:pointer;
+    color:white;
+    margin:2px;
+    transition:.2s;
+}
+.icon-btn:hover{ transform:scale(1.1); }
+
+.view{ background:#3b82f6; }
+.accept{ background:#22c55e; }
+.delete{ background:#ef4444; }
+.edit{ background:#f59e0b; }
+
+.modal{
+    display:none;
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:rgba(0,0,0,0.7);
+}
+.modal-content{
+    background:white;
+    width:400px;
+    margin:60px auto;
+    padding:20px;
+    border-radius:10px;
+}
+input{
+    width:100%;
+    padding:8px;
+    margin:5px 0;
+}
+.close-btn{
+    background:#ef4444;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    cursor:pointer;
+    margin-top:10px;
+}
+</style>
 </head>
+
 <body>
 
-    <div id="dashboard" class="box">
-        <h2>অনলাইন এডমিন প্যানেল (BMK SC)</h2><br>
-        <h4>নতুন আবেদন</h4>
-        <table width="100%" border="1" cellpadding="10" style="border-collapse:collapse">
-            <tbody id="reqBody"></tbody>
-        </table>
-        <br><h4>খেলোয়াড় তালিকা</h4>
-        <table width="100%" border="1" cellpadding="10" style="border-collapse:collapse">
-            <tbody id="pBody"></tbody>
-        </table>
-    </div>
+<div class="box">
+<h2>BMK Sporting Club Admin Panel</h2>
 
-    <div id="modal" class="modal">
-        <div class="modal-content" id="mContent"></div>
-    </div>
+<h3>📩 Apply Requests</h3>
+<table>
+<thead>
+<tr><th>Name</th><th>Action</th></tr>
+</thead>
+<tbody id="reqBody"></tbody>
+</table>
 
-    <script>
-        // Firebase Config (index.html এর মতই একই কোড দিন)
-        const firebaseConfig = {
-            apiKey: "AIzaSyCkYMVn0Jh4Oo8Mgm8WyVAOVe65lSLGeks",
-  authDomain: "barrahms-app.firebaseapp.com",
-  databaseURL: "https://barrahms-app-default-rtdb.firebaseio.com",
-  projectId: "barrahms-app",
-  storageBucket: "barrahms-app.firebasestorage.app",
-  messagingSenderId: "886499355529",
-  appId: "1:886499355529:web:051977ab95fdc3d9b5cf58",
-  measurementId: "G-34HG0VVZFY"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+<h3>👥 Players List</h3>
+<table>
+<thead>
+<tr><th>Photo</th><th>Name</th><th>Action</th></tr>
+</thead>
+<tbody id="pBody"></tbody>
+</table>
+</div>
 
-        // ডাটা লোড
-        db.ref('requests').on('value', snap => {
-            const data = snap.val();
-            let html = "";
-            for(let key in data) {
-                html += `<tr><td>${data[key].name}</td><td>
-                    <button class="icon-btn" style="background:blue" onclick="view('${key}', 'req')"><i class="fas fa-info"></i></button>
-                    <button class="icon-btn" style="background:green" onclick="approve('${key}')"><i class="fas fa-check"></i></button>
-                    <button class="icon-btn" style="background:red" onclick="db.ref('requests/${key}').remove()"><i class="fas fa-trash"></i></button>
-                </td></tr>`;
-            }
-            document.getElementById('reqBody').innerHTML = html;
-        });
+<div id="modal" class="modal">
+<div class="modal-content" id="mContent"></div>
+</div>
 
-        db.ref('players').on('value', snap => {
-            const data = snap.val();
-            let html = "";
-            for(let key in data) {
-                html += `<tr><td><img src="${data[key].pic}" width="30"></td><td>${data[key].name}</td><td>
-                    <button class="icon-btn" style="background:${data[key].isStar?'orange':'gray'}" onclick="db.ref('players/${key}').update({isStar:!${data[key].isStar}})">★</button>
-                    <button class="icon-btn" style="background:blue" onclick="edit('${key}')"><i class="fas fa-pen"></i></button>
-                    <button class="icon-btn" style="background:red" onclick="db.ref('players/${key}').remove()"><i class="fas fa-trash"></i></button>
-                </td></tr>`;
-            }
-            document.getElementById('pBody').innerHTML = html;
-        });
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyCkYMVn0Jh4Oo8Mgm8WyVAOVe65lSLGeks",
+authDomain: "barrahms-app.firebaseapp.com",
+databaseURL: "https://barrahms-app-default-rtdb.firebaseio.com",
+projectId: "barrahms-app",
+storageBucket: "barrahms-app.firebasestorage.app",
+messagingSenderId: "886499355529",
+appId: "1:886499355529:web:051977ab95fdc3d9b5cf58"
+};
 
-        function approve(key) {
-            db.ref('requests/' + key).once('value', snap => {
-                db.ref('players').push({...snap.val(), isStar: false});
-                db.ref('requests/' + key).remove();
-            });
-        }
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-        function view(key, type) {
-            db.ref(type === 'req' ? 'requests/' + key : 'players/' + key).once('value', snap => {
-                const d = snap.val();
-                document.getElementById('mContent').innerHTML = `
-                    <center><img src="${d.pic}" width="100"></center>
-                    <p>নাম: ${d.name}</p><p>পিতা: ${d.father}</p><p>ফোন: ${d.phone}</p><p>ঠিকানা: ${d.address}</p>
-                    <button onclick="document.getElementById('modal').style.display='none'">বন্ধ করুন</button>
-                `;
-                document.getElementById('modal').style.display = 'block';
-            });
-        }
+function closeModal(){
+document.getElementById("modal").style.display="none";
+}
 
-        function edit(key) {
-            db.ref('players/' + key).once('value', snap => {
-                const d = snap.val();
-                document.getElementById('mContent').innerHTML = `
-                    <h3>এডিট তথ্য</h3>
-                    <input id="en" value="${d.name}">
-                    <input id="ej" value="${d.jersey}">
-                    <input id="ep" value="${d.phone}">
-                    <button onclick="saveEdit('${key}')">সেভ</button>
-                `;
-                document.getElementById('modal').style.display = 'block';
-            });
-        }
+// ================= REQUEST LOAD =================
+db.ref("requests").on("value", snap=>{
+const data=snap.val();
+let html="";
+if(data){
+for(let key in data){
+html+=`
+<tr>
+<td>${data[key].name}</td>
+<td>
+<button class="icon-btn view" onclick="viewData('${key}','requests')"><i class="fas fa-eye"></i></button>
+<button class="icon-btn accept" onclick="approve('${key}')"><i class="fas fa-check"></i></button>
+<button class="icon-btn delete" onclick="db.ref('requests/${key}').remove()"><i class="fas fa-trash"></i></button>
+</td>
+</tr>`;
+}
+}
+document.getElementById("reqBody").innerHTML=html;
+});
 
-        function saveEdit(key) {
-            db.ref('players/' + key).update({
-                name: document.getElementById('en').value,
-                jersey: document.getElementById('ej').value,
-                phone: document.getElementById('ep').value
-            });
-            document.getElementById('modal').style.display = 'none';
-        }
-    </script>
+// ================= PLAYER LOAD =================
+db.ref("players").on("value", snap=>{
+const data=snap.val();
+let html="";
+if(data){
+for(let key in data){
+html+=`
+<tr>
+<td><img src="${data[key].pic}" width="40"></td>
+<td>${data[key].name}</td>
+<td>
+<button class="icon-btn view" onclick="viewData('${key}','players')"><i class="fas fa-info-circle"></i></button>
+<button class="icon-btn edit" onclick="editData('${key}')"><i class="fas fa-pen"></i></button>
+<button class="icon-btn delete" onclick="db.ref('players/${key}').remove()"><i class="fas fa-trash"></i></button>
+</td>
+</tr>`;
+}
+}
+document.getElementById("pBody").innerHTML=html;
+});
+
+// ================= APPROVE =================
+function approve(key){
+db.ref("requests/"+key).once("value",snap=>{
+db.ref("players").push(snap.val());
+db.ref("requests/"+key).remove();
+});
+}
+
+// ================= VIEW ALL DATA =================
+function viewData(key,type){
+db.ref(type+"/"+key).once("value",snap=>{
+const d=snap.val();
+
+document.getElementById("mContent").innerHTML=`
+<center><img src="${d.pic}" width="120"></center>
+<p><b>Name:</b> ${d.name || ""}</p>
+<p><b>Father Name:</b> ${d.father || ""}</p>
+<p><b>Date of Birth:</b> ${d.dob || ""}</p>
+<p><b>Jersey No:</b> ${d.jersey || ""}</p>
+<p><b>Position:</b> ${d.position || ""}</p>
+<p><b>Phone:</b> ${d.phone || ""}</p>
+<p><b>Address:</b> ${d.address || ""}</p>
+<button class="close-btn" onclick="closeModal()">Close</button>
+`;
+
+document.getElementById("modal").style.display="block";
+});
+}
+
+// ================= EDIT FULL FORM =================
+function editData(key){
+db.ref("players/"+key).once("value",snap=>{
+const d=snap.val();
+
+document.getElementById("mContent").innerHTML=`
+<h3>Edit Player Full Info</h3>
+
+<input id="e_name" value="${d.name || ""}" placeholder="Name">
+<input id="e_father" value="${d.father || ""}" placeholder="Father Name">
+<input id="e_dob" value="${d.dob || ""}" placeholder="Date of Birth">
+<input id="e_jersey" value="${d.jersey || ""}" placeholder="Jersey No">
+<input id="e_position" value="${d.position || ""}" placeholder="Position">
+<input id="e_phone" value="${d.phone || ""}" placeholder="Phone">
+<input id="e_address" value="${d.address || ""}" placeholder="Address">
+<input id="e_pic" value="${d.pic || ""}" placeholder="Image URL">
+
+<button onclick="saveEdit('${key}')">Save</button>
+<button class="close-btn" onclick="closeModal()">Cancel</button>
+`;
+
+document.getElementById("modal").style.display="block";
+});
+}
+
+// ================= SAVE EDIT =================
+function saveEdit(key){
+db.ref("players/"+key).update({
+name:document.getElementById("e_name").value,
+father:document.getElementById("e_father").value,
+dob:document.getElementById("e_dob").value,
+jersey:document.getElementById("e_jersey").value,
+position:document.getElementById("e_position").value,
+phone:document.getElementById("e_phone").value,
+address:document.getElementById("e_address").value,
+pic:document.getElementById("e_pic").value
+});
+closeModal();
+}
+</script>
+
+
 </body>
 </html>
